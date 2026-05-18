@@ -1,0 +1,16 @@
+[2026-05-18T23:11:42.371+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: etl_end_to_end_pipeline.extract_timesheets manual__2026-05-18T23:11:40+00:00 [queued]>
+[2026-05-18T23:11:42.378+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: etl_end_to_end_pipeline.extract_timesheets manual__2026-05-18T23:11:40+00:00 [queued]>
+[2026-05-18T23:11:42.378+0000] {taskinstance.py:2170} INFO - Starting attempt 1 of 2
+[2026-05-18T23:11:42.391+0000] {taskinstance.py:2191} INFO - Executing <Task(PythonOperator): extract_timesheets> on 2026-05-18 23:11:40+00:00
+[2026-05-18T23:11:42.402+0000] {standard_task_runner.py:60} INFO - Started process 783 to run task
+[2026-05-18T23:11:42.406+0000] {standard_task_runner.py:87} INFO - Running: ['airflow', 'tasks', 'run', 'etl_end_to_end_pipeline', 'extract_timesheets', 'manual__2026-05-18T23:11:40+00:00', '--job-id', '30', '--raw', '--subdir', 'DAGS_FOLDER/etl_dag.py', '--cfg-path', '/tmp/tmp27fwloz6']
+[2026-05-18T23:11:42.409+0000] {standard_task_runner.py:88} INFO - Job 30: Subtask extract_timesheets
+[2026-05-18T23:11:42.475+0000] {task_command.py:423} INFO - Running <TaskInstance: etl_end_to_end_pipeline.extract_timesheets manual__2026-05-18T23:11:40+00:00 [running]> on host 7e6c5cf7b6ad
+[2026-05-18T23:11:42.558+0000] {taskinstance.py:2480} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='airflow' AIRFLOW_CTX_DAG_ID='etl_end_to_end_pipeline' AIRFLOW_CTX_TASK_ID='extract_timesheets' AIRFLOW_CTX_EXECUTION_DATE='2026-05-18T23:11:40+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='manual__2026-05-18T23:11:40+00:00'
+[2026-05-18T23:11:42.560+0000] {etl_dag.py:41} INFO - Starting extraction of timesheet data from /opt/airflow/data
+[2026-05-18T23:11:42.574+0000] {extract.py:72} INFO - Extracting timesheet data from 4 files
+[2026-05-18T23:11:44.839+0000] {extract.py:84} INFO - Timesheet data successfully extracted and saved to data/processed/extracted_timesheets.parquet
+[2026-05-18T23:11:44.886+0000] {python.py:201} INFO - Done. Returned value was: data/processed/extracted_timesheets.parquet
+[2026-05-18T23:11:44.913+0000] {taskinstance.py:1138} INFO - Marking task as SUCCESS. dag_id=etl_end_to_end_pipeline, task_id=extract_timesheets, execution_date=20260518T231140, start_date=20260518T231142, end_date=20260518T231144
+[2026-05-18T23:11:44.988+0000] {local_task_job_runner.py:234} INFO - Task exited with return code 0
+[2026-05-18T23:11:45.015+0000] {taskinstance.py:3280} INFO - 1 downstream tasks scheduled from follow-on schedule check

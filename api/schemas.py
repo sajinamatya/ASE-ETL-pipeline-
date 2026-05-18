@@ -1,23 +1,47 @@
-"""
-schemas.py — DEPRECATED.
+from pydantic import BaseModel, ConfigDict
+from typing import Optional, List
+from datetime import date, datetime
 
-All Pydantic schemas have been merged into api/models.py
-(which now holds both SQLAlchemy ORM models and Pydantic schemas).
+class Token(BaseModel):
+    access_token: str
+    token_type: str
 
-This file is kept only to avoid import errors in any external tooling.
-Import from api.models directly.
-"""
+class TokenData(BaseModel):
+    username: str
 
-from api.models import (  # noqa: F401  re-export for backward compat
-    Token,
-    TokenData,
-    UserCreate,
-    UserOut,
-    EmployeeBase,
-    EmployeeCreate,
-    EmployeeUpdate,
-    EmployeeOut,
-    TimesheetOut,
-    EmployeeListResponse,
-    TimesheetListResponse,
-)
+class UserBase(BaseModel):
+    username: str
+    email: str
+    role: str = "viewer"
+
+class UserCreate(UserBase):
+    password: str
+
+class UserResponse(UserBase):
+    id: int
+    is_active: bool
+    model_config = ConfigDict(from_attributes=True)
+
+class EmployeeBase(BaseModel):
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    department_id: Optional[str] = None
+    job_code: Optional[str] = None
+
+class EmployeeCreate(EmployeeBase):
+    employee_id: str
+    hire_date: Optional[date] = None
+
+class EmployeeUpdate(EmployeeBase):
+    pass
+
+class EmployeeResponse(EmployeeCreate):
+    model_config = ConfigDict(from_attributes=True)
+
+class TimesheetResponse(BaseModel):
+    timesheet_id: int
+    department_id: Optional[str] = None
+    employee_id: Optional[str] = None
+    hours_worked: Optional[float] = None
+    punch_apply_date: Optional[date] = None
+    model_config = ConfigDict(from_attributes=True)

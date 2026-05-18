@@ -1,10 +1,10 @@
 -- =============================================================
--- ETL Pipeline DB — Employees & Timesheets schema
--- Run this manually only if you need to pre-create tables
--- before launching the API (the API auto-creates them on boot).
+-- ETL Pipeline DB — Full Schema
 -- =============================================================
 
+-- -------------------------------------------------------------
 -- Users table (API authentication)
+-- -------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS users (
     id               SERIAL PRIMARY KEY,
     username         VARCHAR(100) UNIQUE NOT NULL,
@@ -15,44 +15,100 @@ CREATE TABLE IF NOT EXISTS users (
     created_at       TIMESTAMPTZ         NOT NULL DEFAULT NOW()
 );
 
--- Employees table
-CREATE TABLE IF NOT EXISTS employees (
-    id           SERIAL PRIMARY KEY,
-    name         VARCHAR(150) NOT NULL,
-    email        VARCHAR(255) UNIQUE NOT NULL,
-    department   VARCHAR(100) NOT NULL,
-    role         VARCHAR(100) NOT NULL,
-    date_joined  DATE         NOT NULL,
-    created_at   TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
-    updated_at   TIMESTAMPTZ  NOT NULL DEFAULT NOW()
+-- -------------------------------------------------------------
+-- Organization
+-- -------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS organization (
+    organization_id   VARCHAR(100) PRIMARY KEY,
+    organization_name VARCHAR(255)
 );
 
--- Auto-update updated_at on every row change
-CREATE OR REPLACE FUNCTION update_updated_at_column()
-RETURNS TRIGGER AS $$
-BEGIN
-    NEW.updated_at = NOW();
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-DROP TRIGGER IF EXISTS set_employees_updated_at ON employees;
-CREATE TRIGGER set_employees_updated_at
-    BEFORE UPDATE ON employees
-    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
--- Timesheets table
-CREATE TABLE IF NOT EXISTS timesheets (
-    id            SERIAL PRIMARY KEY,
-    employee_id   INT          NOT NULL REFERENCES employees(id) ON DELETE CASCADE,
-    work_date     DATE         NOT NULL,
-    hours_worked  FLOAT        NOT NULL,
-    project       VARCHAR(200),
-    notes         VARCHAR(500),
-    created_at    TIMESTAMPTZ  NOT NULL DEFAULT NOW()
+-- -------------------------------------------------------------
+-- Department
+-- -------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS department (
+    department_id   VARCHAR(100) PRIMARY KEY,
+    organization_id VARCHAR(100) REFERENCES organization(organization_id),
+    department_name VARCHAR(255)
 );
 
--- Indexes for common query patterns
-CREATE INDEX IF NOT EXISTS idx_timesheets_employee_id ON timesheets(employee_id);
-CREATE INDEX IF NOT EXISTS idx_timesheets_work_date   ON timesheets(work_date);
-CREATE INDEX IF NOT EXISTS idx_employees_department    ON employees(department);
+-- -------------------------------------------------------------
+-- Manager
+-- -------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS manager (
+    manager_id        VARCHAR(100) PRIMARY KEY,
+    department_id     VARCHAR(100) REFERENCES department(department_id),
+    organization_id   VARCHAR(100) REFERENCES organization(organization_id),
+    manager_name      VARCHAR(255)
+);
+
+-- -------------------------------------------------------------
+-- Employee_job
+-- -------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS employee_job (
+    job_code       VARCHAR(100) PRIMARY KEY,
+    job_title      VARCHAR(255),
+    clinical_level VARCHAR(100)
+);
+
+-- -------------------------------------------------------------
+-- Employee
+-- -------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS employee (
+    employee_id           VARCHAR(100) PRIMARY KEY,
+    department_id         VARCHAR(100) REFERENCES department(department_id),
+    first_name            VARCHAR(100),
+    middle_name           VARCHAR(100),
+    last_name             VARCHAR(100),
+    preferred_name        VARCHAR(100),
+    job_code              VARCHAR(100) REFERENCES employee_job(job_code),
+    job_start_date        DATE,
+    organization_id       VARCHAR(100) REFERENCES organization(organization_id),
+    manager_id            VARCHAR(100) REFERENCES manager(manager_id),
+    dob                   DATE,
+    hire_date             DATE,
+    recent_hire_date      DATE,
+    anniversary_date      DATE,
+    termination_date      DATE,
+    years_of_experience   NUMERIC,
+    work_email            VARCHAR(255),
+    address               TEXT,
+    city                  VARCHAR(100),
+    state                 VARCHAR(100),
+    zip_code              VARCHAR(50),
+    country               VARCHAR(100),
+    fte_status            VARCHAR(50),
+    is_per_diem           BOOLEAN,
+    cell_phone            VARCHAR(50),
+    work_phone            VARCHAR(50),
+    scheduled_weekly_hours NUMERIC,
+    active_status         VARCHAR(50),
+    termination_reason    TEXT
+);
+
+-- -------------------------------------------------------------
+-- Timesheet
+-- -------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS timesheet (
+    timesheet_id        SERIAL PRIMARY KEY,
+    department_id       VARCHAR(100) REFERENCES department(department_id),
+    home_department_id  VARCHAR(100) REFERENCES department(department_id),
+    pay_code            VARCHAR(100),
+    punch_in_comment    TEXT,
+    punch_out_comment   TEXT,
+    hours_worked        NUMERIC,
+    punch_apply_date    DATE,
+    punch_in_datetime   TIMESTAMPTZ,
+    punch_out_datetime  TIMESTAMPTZ,
+    employee_id         VARCHAR(100) REFERENCES employee(employee_id)
+);
+
+-- -------------------------------------------------------------
+-- Schedule
+-- -------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS schedule (
+    schedule_id              SERIAL PRIMARY KEY,
+    timesheet_id             INT REFERENCES timesheet(timesheet_id),
+    scheduled_start_datetime TIMESTAMPTZ,
+    scheduled_end_datetime   TIMESTAMPTZ
+);

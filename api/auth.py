@@ -84,11 +84,12 @@ async def get_current_user(
         username: str = payload.get("sub")
         if username is None:
             raise credentials_exc
-        token_data = models.TokenData(username=username, role=payload.get("role"))
+            
+        # Optional: We could validate token against schemas.TokenData here if needed.
     except JWTError:
         raise credentials_exc
 
-    user = get_user_by_username(db, token_data.username)
+    user = get_user_by_username(db, username)
     if user is None or not user.is_active:
         raise credentials_exc
     return user

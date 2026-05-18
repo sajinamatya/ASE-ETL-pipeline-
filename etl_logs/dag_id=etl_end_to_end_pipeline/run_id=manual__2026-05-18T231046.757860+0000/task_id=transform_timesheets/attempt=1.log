@@ -1,0 +1,122 @@
+[2026-05-18T23:12:54.307+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: etl_end_to_end_pipeline.transform_timesheets manual__2026-05-18T23:10:46.757860+00:00 [queued]>
+[2026-05-18T23:12:54.314+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: etl_end_to_end_pipeline.transform_timesheets manual__2026-05-18T23:10:46.757860+00:00 [queued]>
+[2026-05-18T23:12:54.314+0000] {taskinstance.py:2170} INFO - Starting attempt 1 of 2
+[2026-05-18T23:12:54.326+0000] {taskinstance.py:2191} INFO - Executing <Task(PythonOperator): transform_timesheets> on 2026-05-18 23:10:46.757860+00:00
+[2026-05-18T23:12:54.334+0000] {standard_task_runner.py:60} INFO - Started process 1013 to run task
+[2026-05-18T23:12:54.338+0000] {standard_task_runner.py:87} INFO - Running: ['airflow', 'tasks', 'run', 'etl_end_to_end_pipeline', 'transform_timesheets', 'manual__2026-05-18T23:10:46.757860+00:00', '--job-id', '44', '--raw', '--subdir', 'DAGS_FOLDER/etl_dag.py', '--cfg-path', '/tmp/tmpv8g4v8fd']
+[2026-05-18T23:12:54.341+0000] {standard_task_runner.py:88} INFO - Job 44: Subtask transform_timesheets
+[2026-05-18T23:12:54.403+0000] {task_command.py:423} INFO - Running <TaskInstance: etl_end_to_end_pipeline.transform_timesheets manual__2026-05-18T23:10:46.757860+00:00 [running]> on host 7e6c5cf7b6ad
+[2026-05-18T23:12:54.483+0000] {taskinstance.py:2480} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='airflow' AIRFLOW_CTX_DAG_ID='etl_end_to_end_pipeline' AIRFLOW_CTX_TASK_ID='transform_timesheets' AIRFLOW_CTX_EXECUTION_DATE='2026-05-18T23:10:46.757860+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='manual__2026-05-18T23:10:46.757860+00:00'
+[2026-05-18T23:12:54.485+0000] {etl_dag.py:63} INFO - Starting transformation of timesheet data
+[2026-05-18T23:12:54.761+0000] {transform.py:49} INFO - Starting timesheet transformation rules...
+[2026-05-18T23:12:55.314+0000] {logging_mixin.py:188} WARNING - /opt/airflow/dags/../src/transform.py:57 SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+[2026-05-18T23:12:55.383+0000] {logging_mixin.py:188} WARNING - /opt/airflow/dags/../src/transform.py:57 SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+[2026-05-18T23:12:55.442+0000] {logging_mixin.py:188} WARNING - /opt/airflow/dags/../src/transform.py:57 SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+[2026-05-18T23:12:55.499+0000] {logging_mixin.py:188} WARNING - /opt/airflow/dags/../src/transform.py:57 SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+[2026-05-18T23:12:55.556+0000] {logging_mixin.py:188} WARNING - /opt/airflow/dags/../src/transform.py:57 SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+[2026-05-18T23:12:55.609+0000] {logging_mixin.py:188} WARNING - /opt/airflow/dags/../src/transform.py:57 SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+[2026-05-18T23:12:55.662+0000] {logging_mixin.py:188} WARNING - /opt/airflow/dags/../src/transform.py:57 SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+[2026-05-18T23:12:55.716+0000] {logging_mixin.py:188} WARNING - /opt/airflow/dags/../src/transform.py:57 SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+[2026-05-18T23:12:55.779+0000] {logging_mixin.py:188} WARNING - /opt/airflow/dags/../src/transform.py:57 SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+[2026-05-18T23:12:55.839+0000] {logging_mixin.py:188} WARNING - /opt/airflow/dags/../src/transform.py:57 SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+[2026-05-18T23:12:55.903+0000] {logging_mixin.py:188} WARNING - /opt/airflow/dags/../src/transform.py:57 SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+[2026-05-18T23:12:55.957+0000] {logging_mixin.py:188} WARNING - /opt/airflow/dags/../src/transform.py:57 SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+[2026-05-18T23:12:56.022+0000] {logging_mixin.py:188} WARNING - /opt/airflow/dags/../src/transform.py:57 SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+[2026-05-18T23:12:56.034+0000] {logging_mixin.py:188} WARNING - /opt/airflow/dags/../src/transform.py:61 SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+[2026-05-18T23:12:56.061+0000] {logging_mixin.py:188} WARNING - /opt/airflow/dags/../src/transform.py:63 SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+[2026-05-18T23:12:56.088+0000] {logging_mixin.py:188} WARNING - /opt/airflow/dags/../src/transform.py:65 SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+[2026-05-18T23:12:56.114+0000] {logging_mixin.py:188} WARNING - /opt/airflow/dags/../src/transform.py:71 SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+[2026-05-18T23:12:56.181+0000] {logging_mixin.py:188} WARNING - /opt/airflow/dags/../src/transform.py:71 SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+[2026-05-18T23:12:56.241+0000] {logging_mixin.py:188} WARNING - /opt/airflow/dags/../src/transform.py:71 SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+[2026-05-18T23:12:56.244+0000] {logging_mixin.py:188} WARNING - /opt/airflow/dags/../src/transform.py:76 SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+[2026-05-18T23:12:56.325+0000] {logging_mixin.py:188} WARNING - /opt/airflow/dags/../src/transform.py:78 SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+[2026-05-18T23:12:56.326+0000] {transform.py:80} INFO - Timesheets transformation completed successfully.
+[2026-05-18T23:12:56.692+0000] {etl_dag.py:70} INFO - Successfully transformed timesheet data saved to data/processed/transformed_timesheets.parquet
+[2026-05-18T23:12:56.737+0000] {python.py:201} INFO - Done. Returned value was: None
+[2026-05-18T23:12:56.754+0000] {taskinstance.py:1138} INFO - Marking task as SUCCESS. dag_id=etl_end_to_end_pipeline, task_id=transform_timesheets, execution_date=20260518T231046, start_date=20260518T231254, end_date=20260518T231256
+[2026-05-18T23:12:56.842+0000] {local_task_job_runner.py:234} INFO - Task exited with return code 0
+[2026-05-18T23:12:56.896+0000] {taskinstance.py:3280} INFO - 0 downstream tasks scheduled from follow-on schedule check

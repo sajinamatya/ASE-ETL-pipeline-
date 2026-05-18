@@ -1,125 +1,63 @@
-"""
-Timesheet router — read-only access.
-
-All endpoints require authentication (any role).
-Admins and viewers both have read access; no write operations are exposed.
-
-Endpoints:
-  GET /timesheets                   → list all, filterable by employee / date range
-  GET /timesheets/{id}              → single timesheet entry
-  GET /timesheets/employee/{emp_id} → all entries for one employee
-"""
-
-from datetime import date
-from typing import Optional
-
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from typing import List, Optional
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from datetime import date
+import logging
 
-from api import models
-from api.auth import get_current_user
+from api import models, schemas
 from api.database import get_db
+from api.auth import get_current_user
 
-router = APIRouter(prefix="/timesheets", tags=["Timesheets"])
+logger = logging.getLogger(__name__)
 
-
-@router.get(
-    "",
-    response_model=models.TimesheetListResponse,
-    summary="List timesheets — filterable by employee and/or date range",
+router = APIRouter(
+    prefix="/timesheets",
+    tags=["Timesheets"],
+    dependencies=[Depends(get_current_user)] # Every route here requires authentication
 )
-def list_timesheets(
-    employee_id: Optional[int] = Query(None, description="Filter by employee ID"),
-    date_from: Optional[date] = Query(None, description="Start date (inclusive), YYYY-MM-DD"),
-    date_to: Optional[date] = Query(None, description="End date (inclusive), YYYY-MM-DD"),
-    skip: int = Query(0, ge=0, description="Pagination offset"),
-    limit: int = Query(50, ge=1, le=200, description="Page size"),
-    db: Session = Depends(get_db),
-    _: models.User = Depends(get_current_user),
+
+@router.get("/", response_model=List[schemas.TimesheetResponse])
+def read_timesheets(
+    skip: int = 0, 
+    limit: int = 100, 
+    employee_id: Optional[str] = None,
+    start_date: Optional[date] = None,
+    end_date: Optional[date] = None,
+    db: Session = Depends(get_db)
 ):
-    if date_from and date_to and date_from > date_to:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="date_from must be earlier than or equal to date_to.",
-        )
+    """
+    List all timesheets. 
+    Can be filtered by date range or specific employee.
+    (Read-only access available to everyone).
+    """
+    logger.info(f"Fetching timesheets (skip={skip}, limit={limit}, employee_id={employee_id})")
+    try:
+        query = db.query(models.Timesheet)
+        
+        if employee_id:
+            query = query.filter(models.Timesheet.employee_id == employee_id)
+        if start_date:
+            query = query.filter(models.Timesheet.punch_apply_date >= start_date)
+        if end_date:
+            query = query.filter(models.Timesheet.punch_apply_date <= end_date)
+            
+        return query.offset(skip).limit(limit).all()
+    except Exception as e:
+        logger.error(f"Error fetching timesheets: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error")
 
-    query = db.query(models.Timesheet)
-
-    if employee_id is not None:
-        # Verify the employee exists
-        if not db.get(models.Employee, employee_id):
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Employee with id={employee_id} not found.",
-            )
-        query = query.filter(models.Timesheet.employee_id == employee_id)
-
-    if date_from:
-        query = query.filter(models.Timesheet.work_date >= date_from)
-    if date_to:
-        query = query.filter(models.Timesheet.work_date <= date_to)
-
-    total = query.count()
-    items = (
-        query.order_by(models.Timesheet.work_date.desc(), models.Timesheet.id)
-        .offset(skip)
-        .limit(limit)
-        .all()
-    )
-    return models.TimesheetListResponse(total=total, items=items)
-
-
-@router.get(
-    "/employee/{employee_id}",
-    response_model=models.TimesheetListResponse,
-    summary="List all timesheet entries for a specific employee",
-)
-def list_timesheets_by_employee(
-    employee_id: int,
-    date_from: Optional[date] = Query(None, description="Start date (inclusive)"),
-    date_to: Optional[date] = Query(None, description="End date (inclusive)"),
-    skip: int = Query(0, ge=0),
-    limit: int = Query(50, ge=1, le=200),
-    db: Session = Depends(get_db),
-    _: models.User = Depends(get_current_user),
-):
-    if not db.get(models.Employee, employee_id):
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Employee with id={employee_id} not found.",
-        )
-
-    query = db.query(models.Timesheet).filter(models.Timesheet.employee_id == employee_id)
-
-    if date_from:
-        query = query.filter(models.Timesheet.work_date >= date_from)
-    if date_to:
-        query = query.filter(models.Timesheet.work_date <= date_to)
-
-    total = query.count()
-    items = (
-        query.order_by(models.Timesheet.work_date.desc())
-        .offset(skip)
-        .limit(limit)
-        .all()
-    )
-    return models.TimesheetListResponse(total=total, items=items)
-
-
-@router.get(
-    "/{timesheet_id}",
-    response_model=models.TimesheetOut,
-    summary="Retrieve a single timesheet entry by ID",
-)
-def get_timesheet(
-    timesheet_id: int,
-    db: Session = Depends(get_db),
-    _: models.User = Depends(get_current_user),
-):
-    entry = db.get(models.Timesheet, timesheet_id)
-    if not entry:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Timesheet entry with id={timesheet_id} not found.",
-        )
-    return entry
+@router.get("/{timesheet_id}", response_model=schemas.TimesheetResponse)
+def read_timesheet(timesheet_id: int, db: Session = Depends(get_db)):
+    """Retrieve a specific timesheet by ID."""
+    logger.info(f"Fetching timesheet ID: {timesheet_id}")
+    try:
+        timesheet = db.query(models.Timesheet).filter(models.Timesheet.timesheet_id == timesheet_id).first()
+        if not timesheet:
+            logger.error(f"Timesheet ID {timesheet_id} not found.")
+            raise HTTPException(status_code=404, detail="Timesheet not found")
+        return timesheet
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error fetching timesheet {timesheet_id}: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error")

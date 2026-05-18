@@ -1,0 +1,78 @@
+[2026-05-18T23:10:01.163+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: etl_end_to_end_pipeline.extract_timesheets manual__2026-05-18T23:10:00.079216+00:00 [queued]>
+[2026-05-18T23:10:01.170+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: etl_end_to_end_pipeline.extract_timesheets manual__2026-05-18T23:10:00.079216+00:00 [queued]>
+[2026-05-18T23:10:01.171+0000] {taskinstance.py:2170} INFO - Starting attempt 1 of 2
+[2026-05-18T23:10:01.184+0000] {taskinstance.py:2191} INFO - Executing <Task(PythonOperator): extract_timesheets> on 2026-05-18 23:10:00.079216+00:00
+[2026-05-18T23:10:01.193+0000] {standard_task_runner.py:60} INFO - Started process 569 to run task
+[2026-05-18T23:10:01.199+0000] {standard_task_runner.py:87} INFO - Running: ['airflow', 'tasks', 'run', 'etl_end_to_end_pipeline', 'extract_timesheets', 'manual__2026-05-18T23:10:00.079216+00:00', '--job-id', '15', '--raw', '--subdir', 'DAGS_FOLDER/etl_dag.py', '--cfg-path', '/tmp/tmp2vr2favz']
+[2026-05-18T23:10:01.202+0000] {standard_task_runner.py:88} INFO - Job 15: Subtask extract_timesheets
+[2026-05-18T23:10:01.277+0000] {task_command.py:423} INFO - Running <TaskInstance: etl_end_to_end_pipeline.extract_timesheets manual__2026-05-18T23:10:00.079216+00:00 [running]> on host 7e6c5cf7b6ad
+[2026-05-18T23:10:01.368+0000] {taskinstance.py:2480} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='airflow' AIRFLOW_CTX_DAG_ID='etl_end_to_end_pipeline' AIRFLOW_CTX_TASK_ID='extract_timesheets' AIRFLOW_CTX_EXECUTION_DATE='2026-05-18T23:10:00.079216+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='manual__2026-05-18T23:10:00.079216+00:00'
+[2026-05-18T23:10:01.371+0000] {etl_dag.py:41} INFO - Starting extraction of timesheet data from /opt/airflow/data
+[2026-05-18T23:10:01.385+0000] {extract.py:68} INFO - Extracting timesheet data from 4 files
+[2026-05-18T23:10:02.882+0000] {extract.py:79} ERROR - Failed during timesheets extraction: ("Expected bytes, got a 'int' object", 'Conversion failed for column client_employee_id with type object')
+Traceback (most recent call last):
+  File "/opt/airflow/dags/../src/extract.py", line 75, in run
+    df.to_parquet(output_path, index=False)
+  File "/home/airflow/.local/lib/python3.8/site-packages/pandas/core/frame.py", line 2889, in to_parquet
+    return to_parquet(
+  File "/home/airflow/.local/lib/python3.8/site-packages/pandas/io/parquet.py", line 411, in to_parquet
+    impl.write(
+  File "/home/airflow/.local/lib/python3.8/site-packages/pandas/io/parquet.py", line 159, in write
+    table = self.api.Table.from_pandas(df, **from_pandas_kwargs)
+  File "pyarrow/table.pxi", line 3869, in pyarrow.lib.Table.from_pandas
+  File "/home/airflow/.local/lib/python3.8/site-packages/pyarrow/pandas_compat.py", line 626, in dataframe_to_arrays
+    arrays[i] = maybe_fut.result()
+  File "/usr/local/lib/python3.8/concurrent/futures/_base.py", line 437, in result
+    return self.__get_result()
+  File "/usr/local/lib/python3.8/concurrent/futures/_base.py", line 389, in __get_result
+    raise self._exception
+  File "/usr/local/lib/python3.8/concurrent/futures/thread.py", line 57, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/home/airflow/.local/lib/python3.8/site-packages/pyarrow/pandas_compat.py", line 600, in convert_column
+    raise e
+  File "/home/airflow/.local/lib/python3.8/site-packages/pyarrow/pandas_compat.py", line 594, in convert_column
+    result = pa.array(col, type=type_, from_pandas=True, safe=safe)
+  File "pyarrow/array.pxi", line 340, in pyarrow.lib.array
+  File "pyarrow/array.pxi", line 86, in pyarrow.lib._ndarray_to_array
+  File "pyarrow/error.pxi", line 91, in pyarrow.lib.check_status
+pyarrow.lib.ArrowTypeError: ("Expected bytes, got a 'int' object", 'Conversion failed for column client_employee_id with type object')
+[2026-05-18T23:10:02.889+0000] {etl_dag.py:46} ERROR - Error during timesheet extraction: ("Expected bytes, got a 'int' object", 'Conversion failed for column client_employee_id with type object')
+[2026-05-18T23:10:02.889+0000] {taskinstance.py:2698} ERROR - Task failed with exception
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.8/site-packages/airflow/models/taskinstance.py", line 433, in _execute_task
+    result = execute_callable(context=context, **execute_callable_kwargs)
+  File "/home/airflow/.local/lib/python3.8/site-packages/airflow/operators/python.py", line 199, in execute
+    return_value = self.execute_callable()
+  File "/home/airflow/.local/lib/python3.8/site-packages/airflow/operators/python.py", line 216, in execute_callable
+    return self.python_callable(*self.op_args, **self.op_kwargs)
+  File "/opt/airflow/dags/etl_dag.py", line 44, in task_extract_timesheets
+    return extractor.run()
+  File "/opt/airflow/dags/../src/extract.py", line 75, in run
+    df.to_parquet(output_path, index=False)
+  File "/home/airflow/.local/lib/python3.8/site-packages/pandas/core/frame.py", line 2889, in to_parquet
+    return to_parquet(
+  File "/home/airflow/.local/lib/python3.8/site-packages/pandas/io/parquet.py", line 411, in to_parquet
+    impl.write(
+  File "/home/airflow/.local/lib/python3.8/site-packages/pandas/io/parquet.py", line 159, in write
+    table = self.api.Table.from_pandas(df, **from_pandas_kwargs)
+  File "pyarrow/table.pxi", line 3869, in pyarrow.lib.Table.from_pandas
+  File "/home/airflow/.local/lib/python3.8/site-packages/pyarrow/pandas_compat.py", line 626, in dataframe_to_arrays
+    arrays[i] = maybe_fut.result()
+  File "/usr/local/lib/python3.8/concurrent/futures/_base.py", line 437, in result
+    return self.__get_result()
+  File "/usr/local/lib/python3.8/concurrent/futures/_base.py", line 389, in __get_result
+    raise self._exception
+  File "/usr/local/lib/python3.8/concurrent/futures/thread.py", line 57, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/home/airflow/.local/lib/python3.8/site-packages/pyarrow/pandas_compat.py", line 600, in convert_column
+    raise e
+  File "/home/airflow/.local/lib/python3.8/site-packages/pyarrow/pandas_compat.py", line 594, in convert_column
+    result = pa.array(col, type=type_, from_pandas=True, safe=safe)
+  File "pyarrow/array.pxi", line 340, in pyarrow.lib.array
+  File "pyarrow/array.pxi", line 86, in pyarrow.lib._ndarray_to_array
+  File "pyarrow/error.pxi", line 91, in pyarrow.lib.check_status
+pyarrow.lib.ArrowTypeError: ("Expected bytes, got a 'int' object", 'Conversion failed for column client_employee_id with type object')
+[2026-05-18T23:10:02.907+0000] {taskinstance.py:1138} INFO - Marking task as UP_FOR_RETRY. dag_id=etl_end_to_end_pipeline, task_id=extract_timesheets, execution_date=20260518T231000, start_date=20260518T231001, end_date=20260518T231002
+[2026-05-18T23:10:02.921+0000] {standard_task_runner.py:107} ERROR - Failed to execute job 15 for task extract_timesheets (("Expected bytes, got a 'int' object", 'Conversion failed for column client_employee_id with type object'); 569)
+[2026-05-18T23:10:02.977+0000] {local_task_job_runner.py:234} INFO - Task exited with return code 1
+[2026-05-18T23:10:03.004+0000] {taskinstance.py:3280} INFO - 0 downstream tasks scheduled from follow-on schedule check

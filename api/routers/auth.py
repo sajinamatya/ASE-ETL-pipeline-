@@ -13,7 +13,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
-from api import models
+from api import models, schemas
 from api.auth import (
     authenticate_user,
     create_access_token,
@@ -23,27 +23,33 @@ from api.auth import (
     require_admin,
 )
 from api.database import get_db
+import logging
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 
 @router.post(
     "/register",
-    response_model=models.UserOut,
+    response_model=schemas.UserResponse,
     status_code=status.HTTP_201_CREATED,
     summary="Register a new API user (admin only)",
 )
 def register_user(
-    payload: models.UserCreate,
+    payload: schemas.UserCreate,
     db: Session = Depends(get_db),
     _: models.User = Depends(require_admin),  # only admins can create users
 ):
+    logger.info(f"Attempting to register new user: {payload.username}")
     if get_user_by_username(db, payload.username):
+        logger.warning(f"Registration failed: Username '{payload.username}' taken.")
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=f"Username '{payload.username}' is already taken.",
         )
     if db.query(models.User).filter(models.User.email == payload.email).first():
+        logger.warning(f"Registration failed: Email '{payload.email}' already registered.")
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=f"Email '{payload.email}' is already registered.",
@@ -58,32 +64,36 @@ def register_user(
     db.add(user)
     db.commit()
     db.refresh(user)
+    logger.info(f"User {user.username} successfully registered.")
     return user
 
 
 @router.post(
     "/token",
-    response_model=models.Token,
+    response_model=schemas.Token,
     summary="Obtain a JWT access token (OAuth2 password flow)",
 )
 def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     db: Session = Depends(get_db),
 ):
+    logger.info(f"Login attempt for user: {form_data.username}")
     user = authenticate_user(db, form_data.username, form_data.password)
     if not user:
+        logger.warning(f"Failed login attempt for user: {form_data.username}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password.",
             headers={"WWW-Authenticate": "Bearer"},
         )
     token = create_access_token(data={"sub": user.username, "role": user.role})
-    return models.Token(access_token=token)
+    logger.info(f"User {user.username} successfully logged in.")
+    return schemas.Token(access_token=token, token_type="bearer")
 
 
 @router.get(
     "/me",
-    response_model=models.UserOut,
+    response_model=schemas.UserResponse,
     summary="Return the currently authenticated user",
 )
 def read_current_user(current_user: Annotated[models.User, Depends(get_current_user)]):

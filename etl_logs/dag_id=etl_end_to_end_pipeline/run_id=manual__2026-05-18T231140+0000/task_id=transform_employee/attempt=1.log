@@ -1,0 +1,17 @@
+[2026-05-18T23:11:43.543+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: etl_end_to_end_pipeline.transform_employee manual__2026-05-18T23:11:40+00:00 [queued]>
+[2026-05-18T23:11:43.551+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: etl_end_to_end_pipeline.transform_employee manual__2026-05-18T23:11:40+00:00 [queued]>
+[2026-05-18T23:11:43.552+0000] {taskinstance.py:2170} INFO - Starting attempt 1 of 2
+[2026-05-18T23:11:43.564+0000] {taskinstance.py:2191} INFO - Executing <Task(PythonOperator): transform_employee> on 2026-05-18 23:11:40+00:00
+[2026-05-18T23:11:43.572+0000] {standard_task_runner.py:60} INFO - Started process 786 to run task
+[2026-05-18T23:11:43.575+0000] {standard_task_runner.py:87} INFO - Running: ['airflow', 'tasks', 'run', 'etl_end_to_end_pipeline', 'transform_employee', 'manual__2026-05-18T23:11:40+00:00', '--job-id', '32', '--raw', '--subdir', 'DAGS_FOLDER/etl_dag.py', '--cfg-path', '/tmp/tmplvvk3lz8']
+[2026-05-18T23:11:43.577+0000] {standard_task_runner.py:88} INFO - Job 32: Subtask transform_employee
+[2026-05-18T23:11:43.643+0000] {task_command.py:423} INFO - Running <TaskInstance: etl_end_to_end_pipeline.transform_employee manual__2026-05-18T23:11:40+00:00 [running]> on host 7e6c5cf7b6ad
+[2026-05-18T23:11:43.725+0000] {taskinstance.py:2480} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='airflow' AIRFLOW_CTX_DAG_ID='etl_end_to_end_pipeline' AIRFLOW_CTX_TASK_ID='transform_employee' AIRFLOW_CTX_EXECUTION_DATE='2026-05-18T23:11:40+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='manual__2026-05-18T23:11:40+00:00'
+[2026-05-18T23:11:43.728+0000] {etl_dag.py:50} INFO - Starting transformation of employee data
+[2026-05-18T23:11:43.768+0000] {transform.py:11} INFO - Starting employee transformation rules...
+[2026-05-18T23:11:43.791+0000] {transform.py:38} INFO - Employee transformation completed successfully.
+[2026-05-18T23:11:43.837+0000] {etl_dag.py:57} INFO - Successfully transformed employee data saved to data/processed/transformed_employee.parquet
+[2026-05-18T23:11:43.838+0000] {python.py:201} INFO - Done. Returned value was: None
+[2026-05-18T23:11:43.851+0000] {taskinstance.py:1138} INFO - Marking task as SUCCESS. dag_id=etl_end_to_end_pipeline, task_id=transform_employee, execution_date=20260518T231140, start_date=20260518T231143, end_date=20260518T231143
+[2026-05-18T23:11:43.908+0000] {local_task_job_runner.py:234} INFO - Task exited with return code 0
+[2026-05-18T23:11:43.938+0000] {taskinstance.py:3280} INFO - 0 downstream tasks scheduled from follow-on schedule check

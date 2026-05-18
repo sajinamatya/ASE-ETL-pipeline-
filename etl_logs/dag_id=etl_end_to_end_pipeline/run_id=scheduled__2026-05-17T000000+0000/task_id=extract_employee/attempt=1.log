@@ -1,0 +1,32 @@
+[2026-05-18T23:03:10.192+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: etl_end_to_end_pipeline.extract_employee scheduled__2026-05-17T00:00:00+00:00 [queued]>
+[2026-05-18T23:03:10.200+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: etl_end_to_end_pipeline.extract_employee scheduled__2026-05-17T00:00:00+00:00 [queued]>
+[2026-05-18T23:03:10.201+0000] {taskinstance.py:2170} INFO - Starting attempt 1 of 2
+[2026-05-18T23:03:10.214+0000] {taskinstance.py:2191} INFO - Executing <Task(PythonOperator): extract_employee> on 2026-05-17 00:00:00+00:00
+[2026-05-18T23:03:10.223+0000] {standard_task_runner.py:60} INFO - Started process 274 to run task
+[2026-05-18T23:03:10.231+0000] {standard_task_runner.py:87} INFO - Running: ['airflow', 'tasks', 'run', 'etl_end_to_end_pipeline', 'extract_employee', 'scheduled__2026-05-17T00:00:00+00:00', '--job-id', '3', '--raw', '--subdir', 'DAGS_FOLDER/etl_dag.py', '--cfg-path', '/tmp/tmpz1qsq406']
+[2026-05-18T23:03:10.234+0000] {standard_task_runner.py:88} INFO - Job 3: Subtask extract_employee
+[2026-05-18T23:03:10.305+0000] {task_command.py:423} INFO - Running <TaskInstance: etl_end_to_end_pipeline.extract_employee scheduled__2026-05-17T00:00:00+00:00 [running]> on host 7e6c5cf7b6ad
+[2026-05-18T23:03:10.408+0000] {taskinstance.py:2480} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='airflow' AIRFLOW_CTX_DAG_ID='etl_end_to_end_pipeline' AIRFLOW_CTX_TASK_ID='extract_employee' AIRFLOW_CTX_EXECUTION_DATE='2026-05-17T00:00:00+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='scheduled__2026-05-17T00:00:00+00:00'
+[2026-05-18T23:03:10.410+0000] {etl_dag.py:32} INFO - Starting extraction of employee data from /opt/airflow/data
+[2026-05-18T23:03:10.413+0000] {extract.py:33} INFO - Extracting employee data from /opt/airflow/data/employee_202510161125.csv
+[2026-05-18T23:03:10.570+0000] {extract.py:38} INFO - Employee data successfully extracted and saved to data/processed/extracted_employee.parquet
+[2026-05-18T23:03:10.571+0000] {python.py:201} INFO - Done. Returned value was: data/processed/extracted_employee.parquet
+[2026-05-18T23:03:10.604+0000] {taskinstance.py:1138} INFO - Marking task as SUCCESS. dag_id=etl_end_to_end_pipeline, task_id=extract_employee, execution_date=20260517T000000, start_date=20260518T230310, end_date=20260518T230310
+[2026-05-18T23:03:10.643+0000] {local_task_job_runner.py:234} INFO - Task exited with return code 0
+[2026-05-18T23:03:10.677+0000] {taskinstance.py:3280} INFO - 1 downstream tasks scheduled from follow-on schedule check
+[2026-05-18T23:19:48.794+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: etl_end_to_end_pipeline.extract_employee scheduled__2026-05-17T00:00:00+00:00 [queued]>
+[2026-05-18T23:19:48.803+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: etl_end_to_end_pipeline.extract_employee scheduled__2026-05-17T00:00:00+00:00 [queued]>
+[2026-05-18T23:19:48.805+0000] {taskinstance.py:2170} INFO - Starting attempt 1 of 2
+[2026-05-18T23:19:48.820+0000] {taskinstance.py:2191} INFO - Executing <Task(PythonOperator): extract_employee> on 2026-05-17 00:00:00+00:00
+[2026-05-18T23:19:48.830+0000] {standard_task_runner.py:60} INFO - Started process 273 to run task
+[2026-05-18T23:19:48.836+0000] {standard_task_runner.py:87} INFO - Running: ['airflow', 'tasks', 'run', 'etl_end_to_end_pipeline', 'extract_employee', 'scheduled__2026-05-17T00:00:00+00:00', '--job-id', '3', '--raw', '--subdir', 'DAGS_FOLDER/etl_dag.py', '--cfg-path', '/tmp/tmp2yrlttrm']
+[2026-05-18T23:19:48.840+0000] {standard_task_runner.py:88} INFO - Job 3: Subtask extract_employee
+[2026-05-18T23:19:48.937+0000] {task_command.py:423} INFO - Running <TaskInstance: etl_end_to_end_pipeline.extract_employee scheduled__2026-05-17T00:00:00+00:00 [running]> on host c096087c5df6
+[2026-05-18T23:19:49.039+0000] {taskinstance.py:2480} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='airflow' AIRFLOW_CTX_DAG_ID='etl_end_to_end_pipeline' AIRFLOW_CTX_TASK_ID='extract_employee' AIRFLOW_CTX_EXECUTION_DATE='2026-05-17T00:00:00+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='scheduled__2026-05-17T00:00:00+00:00'
+[2026-05-18T23:19:49.041+0000] {etl_dag.py:32} INFO - Starting extraction of employee data from /opt/airflow/data
+[2026-05-18T23:19:49.056+0000] {extract.py:33} INFO - Extracting employee data from /opt/airflow/data/employee/employee_202510161125.csv
+[2026-05-18T23:19:49.187+0000] {extract.py:42} INFO - Employee data successfully extracted and saved to data/processed/extracted_employee.parquet
+[2026-05-18T23:19:49.189+0000] {python.py:201} INFO - Done. Returned value was: data/processed/extracted_employee.parquet
+[2026-05-18T23:19:49.222+0000] {taskinstance.py:1138} INFO - Marking task as SUCCESS. dag_id=etl_end_to_end_pipeline, task_id=extract_employee, execution_date=20260517T000000, start_date=20260518T231948, end_date=20260518T231949
+[2026-05-18T23:19:49.250+0000] {local_task_job_runner.py:234} INFO - Task exited with return code 0
+[2026-05-18T23:19:49.295+0000] {taskinstance.py:3280} INFO - 1 downstream tasks scheduled from follow-on schedule check

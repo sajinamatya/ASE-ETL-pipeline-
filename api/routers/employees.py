@@ -1,153 +1,108 @@
-"""
-Employee router — full CRUD operations.
-
-Access control:
-  GET    /employees        → any authenticated user
-  GET    /employees/{id}   → any authenticated user
-  POST   /employees        → admin only
-  PUT    /employees/{id}   → admin only
-  DELETE /employees/{id}   → admin only
-"""
-
-from typing import Annotated, Optional
-
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from typing import List, Optional
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+import logging
 
-from api import models
-from api.auth import get_current_user, require_admin
+from api import models, schemas
 from api.database import get_db
+from api.auth import get_current_user
 
-router = APIRouter(prefix="/employees", tags=["Employees"])
+logger = logging.getLogger(__name__)
 
-
-# ─────────────────────────── READ ────────────────────────────────────
-
-@router.get(
-    "",
-    response_model=models.EmployeeListResponse,
-    summary="List all employees",
+router = APIRouter(
+    prefix="/employees",
+    tags=["Employees"],
+    dependencies=[Depends(get_current_user)] # Basic auth barrier
 )
-def list_employees(
-    department: Optional[str] = Query(None, description="Filter by department"),
-    role: Optional[str] = Query(None, description="Filter by role"),
-    skip: int = Query(0, ge=0, description="Pagination offset"),
-    limit: int = Query(50, ge=1, le=200, description="Page size"),
-    db: Session = Depends(get_db),
-    _: models.User = Depends(get_current_user),
-):
-    query = db.query(models.Employee)
-    if department:
-        query = query.filter(models.Employee.department.ilike(f"%{department}%"))
-    if role:
-        query = query.filter(models.Employee.role.ilike(f"%{role}%"))
 
-    total = query.count()
-    items = query.order_by(models.Employee.id).offset(skip).limit(limit).all()
-    return models.EmployeeListResponse(total=total, items=items)
-
-
-@router.get(
-    "/{employee_id}",
-    response_model=models.EmployeeOut,
-    summary="Retrieve an employee by ID",
-)
-def get_employee(
-    employee_id: int,
-    db: Session = Depends(get_db),
-    _: models.User = Depends(get_current_user),
-):
-    employee = db.get(models.Employee, employee_id)
-    if not employee:
+def verify_admin(current_user: models.User = Depends(get_current_user)):
+    if current_user.role != "admin":
+        logger.warning(f"Access denied for user {current_user.username}: Admin role required.")
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Employee with id={employee_id} not found.",
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="The user doesn't have enough privileges."
         )
+
+@router.get("/", response_model=List[schemas.EmployeeResponse])
+def read_employees(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    """Retrieve all employees (Read-only access available to everyone)."""
+    logger.info(f"Fetching employees (skip={skip}, limit={limit})")
+    try:
+        employees = db.query(models.Employee).offset(skip).limit(limit).all()
+        return employees
+    except Exception as e:
+        logger.error(f"Error fetching employees: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+@router.get("/{employee_id}", response_model=schemas.EmployeeResponse)
+def read_employee(employee_id: str, db: Session = Depends(get_db)):
+    """Get a specific employee by ID."""
+    logger.info(f"Fetching employee ID: {employee_id}")
+    employee = db.query(models.Employee).filter(models.Employee.employee_id == employee_id).first()
+    if employee is None:
+        logger.error(f"Employee ID {employee_id} not found.")
+        raise HTTPException(status_code=404, detail="Employee not found")
     return employee
 
+@router.post("/", response_model=schemas.EmployeeResponse, status_code=status.HTTP_201_CREATED, dependencies=[Depends(verify_admin)])
+def create_employee(employee: schemas.EmployeeCreate, db: Session = Depends(get_db)):
+    """Add a new employee (Admin only)."""
+    logger.info(f"Attempting to create employee: {employee.employee_id}")
+    target = db.query(models.Employee).filter(models.Employee.employee_id == employee.employee_id).first()
+    if target:
+        logger.warning(f"Employee ID {employee.employee_id} already exists.")
+        raise HTTPException(status_code=400, detail="Employee ID already registered")
+        
+    try:
+        db_employee = models.Employee(**employee.model_dump())
+        db.add(db_employee)
+        db.commit()
+        db.refresh(db_employee)
+        logger.info(f"Successfully created employee: {employee.employee_id}")
+        return db_employee
+    except Exception as e:
+        db.rollback()
+        logger.error(f"Failed to create employee {employee.employee_id}: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error during employee creation.")
 
-# ─────────────────────────── CREATE ──────────────────────────────────
-
-@router.post(
-    "",
-    response_model=models.EmployeeOut,
-    status_code=status.HTTP_201_CREATED,
-    summary="Create a new employee (admin only)",
-)
-def create_employee(
-    payload: models.EmployeeCreate,
-    db: Session = Depends(get_db),
-    _: models.User = Depends(require_admin),
-):
-    # Email uniqueness check
-    if db.query(models.Employee).filter(models.Employee.email == payload.email).first():
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail=f"Employee with email '{payload.email}' already exists.",
-        )
-    employee = models.Employee(**payload.model_dump())
-    db.add(employee)
-    db.commit()
-    db.refresh(employee)
-    return employee
-
-
-# ─────────────────────────── UPDATE ──────────────────────────────────
-
-@router.put(
-    "/{employee_id}",
-    response_model=models.EmployeeOut,
-    summary="Update an employee's details (admin only)",
-)
-def update_employee(
-    employee_id: int,
-    payload: models.EmployeeUpdate,
-    db: Session = Depends(get_db),
-    _: models.User = Depends(require_admin),
-):
-    employee = db.get(models.Employee, employee_id)
+@router.put("/{employee_id}", response_model=schemas.EmployeeResponse, dependencies=[Depends(verify_admin)])
+def update_employee(employee_id: str, payload: schemas.EmployeeUpdate, db: Session = Depends(get_db)):
+    """Update an existing employee (Admin only)."""
+    logger.info(f"Attempting to update employee ID: {employee_id}")
+    employee = db.query(models.Employee).filter(models.Employee.employee_id == employee_id).first()
     if not employee:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Employee with id={employee_id} not found.",
-        )
+        logger.error(f"Employee ID {employee_id} not found for update.")
+        raise HTTPException(status_code=404, detail="Employee not found")
+        
+    try:
+        update_data = payload.model_dump(exclude_unset=True)
+        for key, value in update_data.items():
+            setattr(employee, key, value)
+            
+        db.commit()
+        db.refresh(employee)
+        logger.info(f"Successfully updated employee: {employee_id}")
+        return employee
+    except Exception as e:
+        db.rollback()
+        logger.error(f"Failed to update employee {employee_id}: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error during employee update.")
 
-    # Only apply fields that were explicitly provided
-    update_data = payload.model_dump(exclude_unset=True)
-
-    # Check email uniqueness if it's being changed
-    if "email" in update_data and update_data["email"] != employee.email:
-        if db.query(models.Employee).filter(models.Employee.email == update_data["email"]).first():
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail=f"Email '{update_data['email']}' is already in use.",
-            )
-
-    for field, value in update_data.items():
-        setattr(employee, field, value)
-
-    db.commit()
-    db.refresh(employee)
-    return employee
-
-
-# ─────────────────────────── DELETE ──────────────────────────────────
-
-@router.delete(
-    "/{employee_id}",
-    status_code=status.HTTP_204_NO_CONTENT,
-    summary="Delete an employee (admin only)",
-)
-def delete_employee(
-    employee_id: int,
-    db: Session = Depends(get_db),
-    _: models.User = Depends(require_admin),
-):
-    employee = db.get(models.Employee, employee_id)
+@router.delete("/{employee_id}", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(verify_admin)])
+def delete_employee(employee_id: str, db: Session = Depends(get_db)):
+    """Delete an employee and all associated timesheets (Admin only)."""
+    logger.info(f"Attempting to delete employee ID: {employee_id}")
+    employee = db.query(models.Employee).filter(models.Employee.employee_id == employee_id).first()
     if not employee:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Employee with id={employee_id} not found.",
-        )
-    db.delete(employee)
-    db.commit()
+        logger.error(f"Employee ID {employee_id} not found for deletion.")
+        raise HTTPException(status_code=404, detail="Employee not found")
+        
+    try:
+        db.delete(employee)
+        db.commit()
+        logger.info(f"Successfully deleted employee: {employee_id}")
+        return {"ok": True}
+    except Exception as e:
+        db.rollback()
+        logger.error(f"Failed to delete employee {employee_id}: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error during employee deletion.")
