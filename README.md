@@ -76,6 +76,25 @@ You can run the ETL pipeline using **Apache Airflow**:
 4. Toggle the switch to **Unpause** the DAG, then click the **Trigger DAG** (Play) button.
 5. Airflow will extract the data, push it to MinIO, transform it utilizing Pandas, and load it into PostgreSQL.
 
+### Airflow Execution & Monitoring
+Here is a look at the Airflow environment managing the ETL pipeline:
+
+**1. DAGs Overview**  
+*The main Airflow dashboard showing the active `etl_end_to_end_pipeline` and the trigger controls.*  
+![Airflow DAGs](documentation%20file/airflow_dags.png)
+
+**2. Pipeline Graph View**  
+*The visual dependency graph of the ETL tasks (Extract -> Transform -> Load Normalized -> Post Processing).*  
+![Airflow Graph](documentation%20file/airflow_graph.png)
+
+**3. Task Duration & Gantt View**  
+*Performance monitoring of individual tasks to find bottlenecks and optimize ETL execution time.*  
+![Airflow Gantt](documentation%20file/airflow_gantt.png)
+
+**4. DAG Run History**  
+*Logs and status tracking of all historic pipeline runs.*  
+![Airflow Run History](documentation%20file/airflow_run_history.png)
+
 *Alternatively, to run the pipeline manually via CLI:*
 ```bash
 python main.py
@@ -91,8 +110,26 @@ The pipeline exposes processed data through a JWT-secured API.
 * To access the endpoints, authenticate via Postman using the `/auth/token` endpoint (URL-encoded: `username=admin`, `password=Admin@12345`).
 
 ### 📈 Visualizations
-* **Python Generated:** Look in the `visualizations/` folder for automatically generated KPI charts (e.g., Attrition Rate, Overtime).
-* **Power BI:** Connect Power BI Desktop to `localhost:5432` (Database: `etl_db`) and import your `dim_` and `fact_` tables.
+
+Here is a glimpse into the analytical charts generated dynamically by our pipeline:
+
+**1. Active Headcount Trend**  
+*A clear timeline tracking the growth or contraction of our overall workforce over time, giving a quick pulse on hiring and retention momentum.*  
+![Active Headcount Trend](visualizations/active_headcount_trend.png)
+
+**2. Early Attrition Rate**  
+*A chart highlighting the percentage of team members who depart within their first year, helping HR track initial onboarding and retention success.*  
+![Early Attrition Rate](visualizations/early_attrition_rate.png)
+
+**3. Average Tenure by Department**  
+*A breakdown comparing how long employees tend to stay within different departments to help identify team-level retention strengths.*  
+![Average Tenure by Dept](visualizations/avg_tenure_by_dept.png)
+
+**4. Top Overtime Employees**  
+*A snapshot of team members logging the highest extra hours, enabling proactive management to balance workloads and prevent burnout.*  
+![Top Overtime Employees](visualizations/top_overtime_employees.png)
+
+> **💡 Interactive Dashboards:** Connect Power BI Desktop to `localhost:5432` (Database: `etl_db`) and import your `dim_` and `fact_` tables to explore these metrics dynamically!
 
 ---
 
