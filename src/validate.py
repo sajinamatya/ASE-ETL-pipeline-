@@ -39,7 +39,7 @@ class DataValidator:
 
     def check_fact_orphans(self):
         """Check if any facts in the timesheet highlight missing employees in the dimension table."""
-        query = "SELECT COUNT(*) FROM fact_timesheet WHERE employee_sk NOT IN (SELECT employee_sk FROM dim_employee)"
+        query = "SELECT COUNT(*) FROM fact_timesheet WHERE dim_employee_key NOT IN (SELECT dim_employee_key FROM dim_employee)"
         with self.engine.connect() as conn:
             orphan_count = conn.execute(text(query)).scalar()
             assert orphan_count == 0, f"Referential Integrity Error: Found {orphan_count} orphaned records in fact_timesheet."
@@ -53,7 +53,7 @@ class DataValidator:
 
     def check_future_punch_dates(self):
         """Ensure no punch apply dates are strictly in the future."""
-        query = "SELECT COUNT(*) FROM fact_timesheet WHERE date_sk > CURRENT_DATE + INTERVAL '1 day'"
+        query = "SELECT COUNT(*) FROM fact_timesheet WHERE dim_date_key > CURRENT_DATE + INTERVAL '1 day'"
         with self.engine.connect() as conn:
             future_count = conn.execute(text(query)).scalar()
             assert future_count == 0, f"Data Anomaly: Found {future_count} timesheets with dates in the future."
@@ -61,6 +61,6 @@ class DataValidator:
     def check_null_keys_in_dimensions(self):
         """Check that no dimension tables contain NULL primary keys."""
         with self.engine.connect() as conn:
-            emp_nulls = conn.execute(text("SELECT COUNT(*) FROM dim_employee WHERE employee_sk IS NULL")).scalar()
-            assert emp_nulls == 0, "Null Constraint Violation: NULL employee_sk found in dim_employee."
+            emp_nulls = conn.execute(text("SELECT COUNT(*) FROM dim_employee WHERE dim_employee_key IS NULL")).scalar()
+            assert emp_nulls == 0, "Null Constraint Violation: NULL dim_employee_key found in dim_employee."
             

@@ -6,20 +6,22 @@
 CREATE OR REPLACE VIEW v_active_headcount AS
 WITH months AS (
     SELECT generate_series(
-        DATE_TRUNC('month', MIN(hire_date)), 
-        DATE_TRUNC('month', CURRENT_DATE), 
+        DATE_TRUNC('month', MIN(hire_date)),
+        DATE_TRUNC('month', CURRENT_DATE),
         '1 month'::interval
     ) AS snapshot_month
     FROM employee
 )
-SELECT 
+SELECT
     m.snapshot_month,
     COUNT(e.employee_id) AS active_headcount
 FROM months m
-LEFT JOIN employee e 
+LEFT JOIN employee e
     ON DATE_TRUNC('month', e.hire_date) <= m.snapshot_month
-    AND (e.termination_date IS NULL OR DATE_TRUNC('month', e.termination_date) > m.snapshot_month)
-GROUP BY m.snapshot_month;
+    AND (e.termination_date IS NULL
+         OR DATE_TRUNC('month', e.termination_date) > m.snapshot_month)
+GROUP BY m.snapshot_month
+ORDER BY m.snapshot_month;
 
 
 -- 2. Turnover Trend (Monthly)
@@ -34,7 +36,7 @@ GROUP BY DATE_TRUNC('month', termination_date);
 
 -- 3. Average Tenure by Department
 CREATE OR REPLACE VIEW v_avg_tenure_by_department AS
-SELECT 
+SELECT
     d.department_name,
     AVG(
         (COALESCE(e.termination_date, CURRENT_DATE) - e.hire_date) / 365.25
@@ -47,13 +49,13 @@ GROUP BY d.department_name;
 -- 4. Average Working Hours per Employee
 CREATE OR REPLACE VIEW v_avg_working_hours AS
 SELECT 
-    e.employee_sk AS employee_id,
+    e.dim_employee_key AS employee_id,
     e.first_name,
     e.last_name,
     AVG(f.hours_worked) AS avg_hours_per_shift
 FROM fact_timesheet f
-JOIN dim_employee e ON f.employee_sk = e.employee_sk
-GROUP BY e.employee_sk, e.first_name, e.last_name;
+JOIN dim_employee e ON f.dim_employee_key = e.dim_employee_key
+GROUP BY e.dim_employee_key, e.first_name, e.last_name;
 
 
 -- 5. Late Arrival Frequency (Grace time +5 min)
@@ -91,12 +93,12 @@ GROUP BY employee_id;
 -- 8. Rolling Average Working Hours (7-day moving average)
 CREATE OR REPLACE VIEW v_rolling_avg_hours AS
 SELECT 
-    date_sk AS work_date,
-    employee_sk,
+    dim_date_key AS work_date,
+    dim_employee_key,
     hours_worked,
     AVG(hours_worked) OVER (
-        PARTITION BY employee_sk 
-        ORDER BY date_sk 
+        PARTITION BY dim_employee_key 
+        ORDER BY dim_date_key 
         ROWS BETWEEN 6 PRECEDING AND CURRENT ROW
     ) AS rolling_7day_avg_hours
 FROM fact_timesheet;

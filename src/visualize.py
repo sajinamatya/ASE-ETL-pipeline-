@@ -56,14 +56,23 @@ def generate_visualizations(db_url: str, output_dir: str):
 
     # Visualization 3: Top Overtime Hours
     try:
-        df_ot = pd.read_sql("SELECT employee_id, total_overtime_hours FROM v_total_overtime ORDER BY total_overtime_hours DESC LIMIT 10", engine)
+        query = """
+        SELECT 
+            e.first_name || ' ' || e.last_name AS employee_name, 
+            v.total_overtime_hours 
+        FROM v_total_overtime v
+        JOIN employee e ON v.employee_id = e.employee_id
+        ORDER BY v.total_overtime_hours DESC 
+        LIMIT 10
+        """
+        df_ot = pd.read_sql(query, engine)
         if not df_ot.empty:
             plt.figure(figsize=(10, 6))
-            plt.bar(df_ot['employee_id'].astype(str), df_ot['total_overtime_hours'], color='purple')
+            plt.bar(df_ot['employee_name'], df_ot['total_overtime_hours'], color='purple')
             plt.title('Top 10 Employees by Overtime Hours')
-            plt.xlabel('Employee ID')
+            plt.xlabel('Employee Name')
             plt.ylabel('Total Overtime Hours Exceeding Standard Shifts')
-            plt.xticks(rotation=45)
+            plt.xticks(rotation=45, ha='right') # Rotate and align right for long names
             plt.tight_layout()
             plt.savefig(os.path.join(output_dir, 'top_overtime_employees.png'))
             plt.close()
@@ -90,13 +99,4 @@ def generate_visualizations(db_url: str, output_dir: str):
     except Exception as e:
         logger.error(f"Failed to generate early attrition chart: {e}", exc_info=True)
 
-if __name__ == "__main__":
-    import dotenv
-    dotenv.load_dotenv()
-    
-    DB_URL = os.getenv("DATABASE_URL")
-    if not DB_URL:
-        raise ValueError("DATABASE_URL environment variable is not set. Check your .env file.")
-        
-    OUT_DIR = os.path.join(os.path.dirname(__file__), '..', 'visualizations')
-    generate_visualizations(DB_URL, OUT_DIR)
+

@@ -81,19 +81,19 @@ Here is a look at the Airflow environment managing the ETL pipeline:
 
 **1. DAGs Overview**  
 *The main Airflow dashboard showing the active `etl_end_to_end_pipeline` and the trigger controls.*  
-![Airflow DAGs](documentation%20file/airflow_dags.png)
+![Airflow DAGs](documentation file/1.png)
 
 **2. Pipeline Graph View**  
 *The visual dependency graph of the ETL tasks (Extract -> Transform -> Load Normalized -> Post Processing).*  
-![Airflow Graph](documentation%20file/airflow_graph.png)
+![Airflow Graph](documentation file/2.png)
 
 **3. Task Duration & Gantt View**  
 *Performance monitoring of individual tasks to find bottlenecks and optimize ETL execution time.*  
-![Airflow Gantt](documentation%20file/airflow_gantt.png)
+![Airflow Gantt](documentation file/3.png)
 
 **4. DAG Run History**  
 *Logs and status tracking of all historic pipeline runs.*  
-![Airflow Run History](documentation%20file/airflow_run_history.png)
+![Airflow Run History](documentation file/4.png)
 
 *Alternatively, to run the pipeline manually via CLI:*
 ```bash
