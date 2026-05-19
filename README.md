@@ -101,6 +101,8 @@ python main.py
 ```
 
 ---
+# Star schema
+<img width="871" height="1191" alt="dimensional_modeling drawio" src="https://github.com/user-attachments/assets/b4138f02-69ca-4bc3-a872-f24570bf8f76" />
 
 ## 📊 Analytics & API
 
