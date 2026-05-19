@@ -71,9 +71,32 @@ def generate_visualizations(db_url: str, output_dir: str):
     except Exception as e:
         logger.error(f"Failed to generate overtime chart: {e}", exc_info=True)
 
+    # Visualization 4: Early Attrition Rate
+    try:
+        df_attr = pd.read_sql("SELECT early_attrition_rate_pct FROM v_early_attrition", engine)
+        if not df_attr.empty and not df_attr['early_attrition_rate_pct'].isnull().all():
+            rate = float(df_attr['early_attrition_rate_pct'].iloc[0])
+            plt.figure(figsize=(8, 4))
+            plt.barh(['Early Attrition Rate'], [rate], color='crimson')
+            plt.xlim(0, max(100, rate + 10)) # Ensure 100% scale unless it exceeds
+            plt.title('Early Attrition Rate (Left within 6 months)')
+            plt.xlabel('Percentage (%)')
+            # Add data label
+            plt.text(rate + 1, 0, f"{rate:.1f}%", va='center', fontweight='bold')
+            plt.tight_layout()
+            plt.savefig(os.path.join(output_dir, 'early_attrition_rate.png'))
+            plt.close()
+            logger.info("Saved visualization: early_attrition_rate.png")
+    except Exception as e:
+        logger.error(f"Failed to generate early attrition chart: {e}", exc_info=True)
+
 if __name__ == "__main__":
     import dotenv
     dotenv.load_dotenv()
-    DB_URL = os.getenv("DATABASE_URL", "postgresql://user:password@localhost:5432/etl_db")
+    
+    DB_URL = os.getenv("DATABASE_URL")
+    if not DB_URL:
+        raise ValueError("DATABASE_URL environment variable is not set. Check your .env file.")
+        
     OUT_DIR = os.path.join(os.path.dirname(__file__), '..', 'visualizations')
     generate_visualizations(DB_URL, OUT_DIR)

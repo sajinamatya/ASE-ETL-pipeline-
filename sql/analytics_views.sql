@@ -37,7 +37,7 @@ CREATE OR REPLACE VIEW v_avg_tenure_by_department AS
 SELECT 
     d.department_name,
     AVG(
-        EXTRACT(EPOCH FROM (COALESCE(e.termination_date, CURRENT_DATE) - e.hire_date)) / 31557600
+        (COALESCE(e.termination_date, CURRENT_DATE) - e.hire_date) / 365.25
     ) AS avg_tenure_years
 FROM employee e
 JOIN department d ON e.department_id = d.department_id
@@ -47,13 +47,13 @@ GROUP BY d.department_name;
 -- 4. Average Working Hours per Employee
 CREATE OR REPLACE VIEW v_avg_working_hours AS
 SELECT 
-    e.employee_id,
+    e.employee_sk AS employee_id,
     e.first_name,
     e.last_name,
     AVG(f.hours_worked) AS avg_hours_per_shift
 FROM fact_timesheet f
 JOIN dim_employee e ON f.employee_sk = e.employee_sk
-GROUP BY e.employee_id, e.first_name, e.last_name;
+GROUP BY e.employee_sk, e.first_name, e.last_name;
 
 
 -- 5. Late Arrival Frequency (Grace time +5 min)

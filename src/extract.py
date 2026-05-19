@@ -86,20 +86,3 @@ class ExtractTimesheet:
         except Exception as e:
             logger.error(f"Failed during timesheets extraction: {e}", exc_info=True)
             raise
-
-if __name__ == "__main__":
-    # Example usage for testing locally
-    dataset_path = r"C:\Users\LENOVO\Downloads\ASE-ETL-dataset_1_1 (1)"
-    processed_path = Path(__file__).parent.parent / 'data' / 'processed'
-    
-    try:
-        emp_extractor = ExtractEmployee(dataset_path, processed_path)
-        emp_file = emp_extractor.run()
-        
-        ts_extractor = ExtractTimesheet(dataset_path, processed_path)
-        ts_file = ts_extractor.run()
-        
-        print(f"Extraction complete. Files saved to:\n- {emp_file}\n- {ts_file}")
-    except Exception as e:
-        print(f"Error extracting data: {e}")
-

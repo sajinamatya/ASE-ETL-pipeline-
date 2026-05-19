@@ -26,7 +26,14 @@ from src.load import DataLoader
 # Paths and URLs
 DATASET_PATH = os.environ.get("DATASET_PATH", r"C:\Users\LENOVO\Downloads\ASE-ETL-dataset_1_1 (1)")
 PROCESSED_DIR = os.environ.get("PROCESSED_DIR", os.path.join(os.path.dirname(__file__), '..', 'data', 'processed'))
-DB_URL = os.environ.get("DATABASE_URL", "postgresql://postgres:sajin@db:5432/etl_db")
+
+# DOCKER_DATABASE_URL is used inside the Airflow Docker container
+DB_URL = os.environ.get("DOCKER_DATABASE_URL", os.environ.get("DATABASE_URL"))
+
+# MinIO configs (Optional)
+MINIO_ENDPOINT = os.environ.get("MINIO_ENDPOINT")
+MINIO_ACCESS_KEY = os.environ.get("MINIO_ACCESS_KEY")
+MINIO_SECRET_KEY = os.environ.get("MINIO_SECRET_KEY")
 
 def task_extract_employee():
     logger.info(f"Starting extraction of employee data from {DATASET_PATH}")
@@ -75,7 +82,13 @@ def task_transform_timesheets():
 def task_load_normalized_data():
     logger.info("Starting normalized insert into database respecting ERD constraints")
     try:
-        loader = DataLoader(db_url=DB_URL)
+        # DataLoader supports both local DataFrame operations and MinIO operations
+        loader = DataLoader(
+            db_url=DB_URL,
+            minio_endpoint=MINIO_ENDPOINT,
+            minio_access_key=MINIO_ACCESS_KEY,
+            minio_secret_key=MINIO_SECRET_KEY
+        )
         emp_path = os.path.join(PROCESSED_DIR, 'transformed_employee.parquet')
         ts_path = os.path.join(PROCESSED_DIR, 'transformed_timesheets.parquet')
         
@@ -94,7 +107,12 @@ def task_post_processing():
     """
     logger.info("Starting post-processing routines (Dimensional modeling & Analysis)...")
     try:
-        loader = DataLoader(db_url=DB_URL)
+        loader = DataLoader(
+            db_url=DB_URL,
+            minio_endpoint=MINIO_ENDPOINT,
+            minio_access_key=MINIO_ACCESS_KEY,
+            minio_secret_key=MINIO_SECRET_KEY
+        )
         
         # 1. Generate Star Schema from Normalized data (Medallion: Silver -> Gold)
         logger.info("Executing Medallion Gold Layer: Building dimensional star schema...")

@@ -64,9 +64,3 @@ class DataValidator:
             emp_nulls = conn.execute(text("SELECT COUNT(*) FROM dim_employee WHERE employee_sk IS NULL")).scalar()
             assert emp_nulls == 0, "Null Constraint Violation: NULL employee_sk found in dim_employee."
             
-if __name__ == "__main__":
-    import dotenv
-    dotenv.load_dotenv()
-    db_url = os.getenv("DATABASE_URL", "postgresql://user:password@localhost:5432/etl_db")
-    validator = DataValidator(db_url)
-    validator.run_all_checks()

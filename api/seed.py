@@ -27,7 +27,7 @@ def seed():
             admin = models.User(
                 username="admin",
                 email="admin@example.com",
-                hashed_password=hash_password("Admin@12345"),
+                hashed_password=hash_password("admin"),
                 role="admin",
             )
             db.add(admin)
@@ -48,30 +48,34 @@ def seed():
         else:
             print("–  Viewer user already exists, skipping.")
 
+        db.commit() # Save users immediately before proceeding
         db.flush()  # get IDs before adding timesheets
 
         # ── 3. Sample employees ───────────────────────────────────────
         sample_employees = [
             {
-                "name": "Alice Sharma",
-                "email": "alice.sharma@company.com",
-                "department": "Engineering",
-                "role": "Software Engineer",
-                "date_joined": date(2022, 3, 15),
+                "employee_id": "EMP001",
+                "department_id": "DEP001",
+                "first_name": "Alice",
+                "last_name": "Sharma",
+                "job_code": "ENG01",
+                "hire_date": date(2022, 3, 15),
             },
             {
-                "name": "Bob Karki",
-                "email": "bob.karki@company.com",
-                "department": "Data",
-                "role": "Data Analyst",
-                "date_joined": date(2021, 7, 1),
+                "employee_id": "EMP002",
+                "department_id": "DEP002",
+                "first_name": "Bob",
+                "last_name": "Karki",
+                "job_code": "DAT01",
+                "hire_date": date(2021, 7, 1),
             },
             {
-                "name": "Clara Rai",
-                "email": "clara.rai@company.com",
-                "department": "HR",
-                "role": "HR Manager",
-                "date_joined": date(2020, 11, 20),
+                "employee_id": "EMP003",
+                "department_id": "DEP003",
+                "first_name": "Clara",
+                "last_name": "Rai",
+                "job_code": "HR01",
+                "hire_date": date(2020, 11, 20),
             },
         ]
 
@@ -79,7 +83,7 @@ def seed():
         for emp_data in sample_employees:
             existing = (
                 db.query(models.Employee)
-                .filter(models.Employee.email == emp_data["email"])
+                .filter(models.Employee.employee_id == emp_data["employee_id"])
                 .first()
             )
             if not existing:
@@ -87,36 +91,35 @@ def seed():
                 db.add(emp)
                 db.flush()
                 created_employees.append(emp)
-                print(f"✓  Created employee: {emp_data['name']}")
+                print(f"✓  Created employee: {emp_data['first_name']} {emp_data['last_name']}")
             else:
                 created_employees.append(existing)
-                print(f"–  Employee '{emp_data['name']}' already exists, skipping.")
+                print(f"–  Employee '{emp_data['first_name']} {emp_data['last_name']}' already exists, skipping.")
 
         # ── 4. Sample timesheets ──────────────────────────────────────
         sample_timesheets = [
-            {"employee": created_employees[0], "work_date": date(2024, 5, 1),  "hours_worked": 8.0, "project": "ETL Pipeline v2",   "notes": "Implemented extract module"},
-            {"employee": created_employees[0], "work_date": date(2024, 5, 2),  "hours_worked": 7.5, "project": "ETL Pipeline v2",   "notes": "Unit tests for transform"},
-            {"employee": created_employees[1], "work_date": date(2024, 5, 1),  "hours_worked": 6.0, "project": "Dashboard",          "notes": "Built sales KPI charts"},
-            {"employee": created_employees[1], "work_date": date(2024, 5, 3),  "hours_worked": 8.0, "project": "Dashboard",          "notes": "Connected to live DB"},
-            {"employee": created_employees[2], "work_date": date(2024, 5, 2),  "hours_worked": 5.0, "project": "Onboarding Process", "notes": "Updated policy documents"},
+            {"employee_id": created_employees[0].employee_id, "department_id": created_employees[0].department_id, "punch_apply_date": date(2024, 5, 1),  "hours_worked": 8.0},
+            {"employee_id": created_employees[0].employee_id, "department_id": created_employees[0].department_id, "punch_apply_date": date(2024, 5, 2),  "hours_worked": 7.5},
+            {"employee_id": created_employees[1].employee_id, "department_id": created_employees[1].department_id, "punch_apply_date": date(2024, 5, 1),  "hours_worked": 6.0},
+            {"employee_id": created_employees[1].employee_id, "department_id": created_employees[1].department_id, "punch_apply_date": date(2024, 5, 3),  "hours_worked": 8.0},
+            {"employee_id": created_employees[2].employee_id, "department_id": created_employees[2].department_id, "punch_apply_date": date(2024, 5, 2),  "hours_worked": 5.0},
         ]
 
         for ts_data in sample_timesheets:
-            emp = ts_data.pop("employee")
             existing = (
                 db.query(models.Timesheet)
                 .filter(
-                    models.Timesheet.employee_id == emp.id,
-                    models.Timesheet.work_date == ts_data["work_date"],
+                    models.Timesheet.employee_id == ts_data["employee_id"],
+                    models.Timesheet.punch_apply_date == ts_data["punch_apply_date"],
                 )
                 .first()
             )
             if not existing:
-                ts = models.Timesheet(employee_id=emp.id, **ts_data)
+                ts = models.Timesheet(**ts_data)
                 db.add(ts)
-                print(f"✓  Added timesheet for employee_id={emp.id} on {ts_data['work_date']}")
+                print(f"✓  Added timesheet for employee_id={ts_data['employee_id']} on {ts_data['punch_apply_date']}")
             else:
-                print(f"–  Timesheet for employee_id={emp.id} on {ts_data['work_date']} exists, skipping.")
+                print(f"–  Timesheet for employee_id={ts_data['employee_id']} on {ts_data['punch_apply_date']} exists, skipping.")
 
         db.commit()
         print("\n✅  Seeding complete.")

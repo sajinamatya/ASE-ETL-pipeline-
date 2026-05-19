@@ -112,3 +112,23 @@ CREATE TABLE IF NOT EXISTS schedule (
     scheduled_start_datetime TIMESTAMPTZ,
     scheduled_end_datetime   TIMESTAMPTZ
 );
+
+-- -------------------------------------------------------------
+-- Indexes for Performance
+-- -------------------------------------------------------------
+CREATE INDEX IF NOT EXISTS idx_department_org ON department(organization_id);
+
+CREATE INDEX IF NOT EXISTS idx_manager_dept ON manager(department_id);
+CREATE INDEX IF NOT EXISTS idx_manager_org ON manager(organization_id);
+
+CREATE INDEX IF NOT EXISTS idx_employee_dept ON employee(department_id);
+CREATE INDEX IF NOT EXISTS idx_employee_job ON employee(job_code);
+CREATE INDEX IF NOT EXISTS idx_employee_org ON employee(organization_id);
+CREATE INDEX IF NOT EXISTS idx_employee_manager ON employee(manager_id);
+
+CREATE INDEX IF NOT EXISTS idx_timesheet_emp ON timesheet(employee_id);
+CREATE INDEX IF NOT EXISTS idx_timesheet_dept ON timesheet(department_id);
+CREATE INDEX IF NOT EXISTS idx_timesheet_apply_date ON timesheet(punch_apply_date);
+CREATE INDEX IF NOT EXISTS idx_timesheet_in_time ON timesheet(punch_in_datetime);
+
+CREATE INDEX IF NOT EXISTS idx_schedule_timesheet ON schedule(timesheet_id);
