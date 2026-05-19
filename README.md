@@ -1,4 +1,4 @@
-# ASI ETL Pipeline & Data Warehouse
+# ASI ETL Pipeline & Data Reporting
 
 ![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)
 ![Airflow](https://img.shields.io/badge/Apache%20Airflow-2.8.1-017CEE.svg)
